@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+<nav class="navbar navbar-light bg-light">
+        <h2 align="center">Записи:</h2>
+</nav>
+{% for item in client%}
+<div class="col-md6 border rounded">
+    <h2>Имя - {{item.name}}</h2>
+    <div>
+        <b>Пожелания</b> - {{item.about}}
+        <br>
+        <b>На какую дату записался клиент</b> - {{item.date}}
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

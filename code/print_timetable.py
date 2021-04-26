@@ -44,6 +44,7 @@ def find_organization(address):
         print("Http статус:", response.status_code, "(", response.reason, ")")
         sys.exit(1)
 
+
 def execute_from_database(file_name, ids=True, names=True, numbers=True, dates=True):
     # Импорт библиотеки
     import sqlite3
@@ -88,11 +89,15 @@ parser.add_argument('--no-number', action='store_const', const=False, default=Tr
                     help='data\'ll be taken from database without clients\' numbers')
 parser.add_argument('--no-date', action='store_const', const=False, default=True, dest='date',
                     help='data\'ll be taken from database without clients\' haircut dates')
-parser.add_argument('--address', type=str, nargs='+',
+parser.add_argument('--address', type=str, nargs='+', default=False,
                     help='data\'ll be taken from database without clients\' id')
 args = parser.parse_args()
 
-find_organization('""'.join(args.address))
+if args.address:
+    address_stroke = find_organization('""'.join(args.address))
+    with open('generated\\address.txt', 'w') as fi:
+        fi.write(address_stroke)
+
 
 file, data = execute_from_database(args.file_name, args.id, args.name, args.number, args.date)
 file = 'generated\\' + file + '.csv'
