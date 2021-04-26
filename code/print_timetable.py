@@ -1,6 +1,48 @@
 import argparse
 import csv
+import requests
+import sys
 
+
+def find_organization(address):
+    geocoder_request = f'http://geocode-maps.yandex.ru/1.x/?apikey=40d1649f-0493-4b70-98ba-98533de7710b&geocode=' \
+                       f'{address}&format=json'
+    response = requests.get(geocoder_request)
+
+    if response:
+        json_response = response.json()
+        toponym = json_response["response"]["GeoObjectCollection"]["featureMember"][0]["GeoObject"]
+        toponym_coodrinates = toponym["Point"]["pos"]
+        toponym_coodrinates = toponym_coodrinates.split(' ')
+        toponym_coodrinates = ','.join(toponym_coodrinates)
+    else:
+        print("Ошибка выполнения запроса:")
+        print(geocoder_request)
+        print("Http статус:", response.status_code, "(", response.reason, ")")
+        sys.exit(1)
+
+    search_api_server = "https://search-maps.yandex.ru/v1/"
+    api_key = "dda3ddba-c9ea-4ead-9010-f43fbc15c6e3"
+
+    search_params = {
+        "apikey": api_key,
+        "text": "парикмахерская",
+        "lang": "ru_RU",
+        "ll": toponym_coodrinates,
+        "type": "biz"
+    }
+
+    response = requests.get(search_api_server, params=search_params)
+
+    if response:
+        json_response = response.json()
+        organization = json_response["features"][0]
+        org_address = organization["properties"]["CompanyMetaData"]["address"]
+        return org_address
+    else:
+        print("Ошибка выполнения запроса!")
+        print("Http статус:", response.status_code, "(", response.reason, ")")
+        sys.exit(1)
 
 def execute_from_database(file_name, ids=True, names=True, numbers=True, dates=True):
     # Импорт библиотеки
@@ -50,10 +92,7 @@ parser.add_argument('--address', type=str, nargs='+',
                     help='data\'ll be taken from database without clients\' id')
 args = parser.parse_args()
 
-""" Напиши в консоль, например: 'py print_timetable.py test_file --address город Екатеринбург, улица Сахалинская 24'
-    В args.address будет храниться массив с адресом.
-    При помощи ' ' '.join(args.address) ' его можно переделать в строку с адресом"""
-print(' '.join(args.address))
+find_organization('""'.join(args.address))
 
 file, data = execute_from_database(args.file_name, args.id, args.name, args.number, args.date)
 file = 'generated\\' + file + '.csv'
