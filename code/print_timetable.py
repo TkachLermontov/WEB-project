@@ -46,9 +46,15 @@ parser.add_argument('--no-number', action='store_const', const=False, default=Tr
                     help='data\'ll be taken from database without clients\' numbers')
 parser.add_argument('--no-date', action='store_const', const=False, default=True, dest='date',
                     help='data\'ll be taken from database without clients\' haircut dates')
+parser.add_argument('--address', type=str, nargs='+',
+                    help='data\'ll be taken from database without clients\' id')
 args = parser.parse_args()
 
-# при помощи
+""" Напиши в консоль, например: 'py print_timetable.py test_file --address город Екатеринбург, улица Сахалинская 24'
+    В args.address будет храниться массив с адресом.
+    При помощи ' ' '.join(args.address) ' его можно переделать в строку с адресом"""
+print(' '.join(args.address))
+
 file, data = execute_from_database(args.file_name, args.id, args.name, args.number, args.date)
 file = 'generated\\' + file + '.csv'
 with open(file, 'w', newline='') as f:
